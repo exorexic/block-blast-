@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Block Blast</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 800px;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            color: white;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 20px;
+            color: white;
+            font-size: 1.2rem;
+        }
+        
+        .game-area {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+        }
+        
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            grid-template-rows: repeat(10, 1fr);
+            gap: 2px;
+            width: 300px;
+            height: 300px;
+            background-color: #2c3e50;
+            border-radius: 5px;
+            padding: 5px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .cell {
+            background-color: #34495e;
+            border-radius: 3px;
+            transition: background-color 0.2s;
+        }
+        
+        .cell.filled {
+            background-color: #3498db;
+            box-shadow: inset 0 0 5px rgba(255, 255, 255, 0.5);
+        }
+        
+        .cell.filled.line-complete {
+            background-color: #2ecc71;
+        }
+        
+        .next-blocks {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .next-block {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 2px;
+            width: 120px;
+            height: 120px;
+            background-color: #2c3e50;
+            border-radius: 5px;
+            padding: 5px;
+        }
+        
+        .block-cell {
+            background-color: transparent;
+            border-radius: 3px;
+        }
+        
+        .block-cell.filled {
+            background-color: #e74c3c;
+            box-shadow: inset 0 0 5px rgba(255, 255, 255, 0.5);
+        }
+        
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+        }
+        
+        button {
+            padding: 12px 25px;
+            background: linear-gradient(to right, #3498db, #2980b9);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+        }
+        
+        .game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            z-index: 10;
+            display: none;
+        }
+        
+        .game-over h2 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+        
+        .instructions {
+            margin-top: 20px;
+            color: white;
+            text-align: center;
+            max-width: 500px;
+            line-height: 1.5;
+        }
+        
+        @media (max-width: 600px) {
+            .game-area {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .next-blocks {
+                flex-direction: row;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Block Blast</h1>
+        
+        <div class="game-info">
+            <div>Очки: <span id="score">0</span></div>
+            <div>Уровень: <span id="level">1</span></div>
+            <div>Линии: <span id="lines">0</span></div>
+        </div>
+        
+        <div class="game-area">
+            <div class="game-board" id="board"></div>
+            
+            <div class="next-blocks">
+                <h3 style="color: white; text-align: center;">Следующая фигура:</h3>
+                <div class="next-block" id="next-block"></div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button id="rotate-btn">Повернуть</button>
+            <button id="restart-btn">Новая игра</button>
+        </div>
+        
+        <div class="instructions">
+            <p>Перетащите фигуру на игровое поле. Заполните строку или столбец, чтобы очистить их и заработать очки!</p>
+        </div>
+    </div>
+    
+    <div class="game-over" id="game-over">
+        <h2>Игра окончена!</h2>
+        <p>Ваш счет: <span id="final-score">0</span></p>
+        <button id="play-again-btn">Играть снова</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Константы игры
+            const BOARD_SIZE = 10;
+            const BLOCK_TYPES = [
+                [[1, 1, 1, 1]], // I
+                [[1, 1], [1, 1]], // O
+                [[1, 1, 1], [0, 1, 0]], // T
+                [[1, 1, 1], [1, 0, 0]], // L
+                [[1, 1, 1], [0, 0, 1]], // J
+                [[1, 1, 0], [0, 1, 1]], // Z
+                [[0, 1, 1], [1, 1, 0]]  // S
+            ];
+            
+            // Элементы DOM
+            const boardElement = document.getElementById('board');
+            const nextBlockElement = document.getElementById('next-block');
+            const scoreElement = document.getElementById('score');
+            const levelElement = document.getElementById('level');
+            const linesElement = document.getElementById('lines');
+            const rotateButton = document.getElementById('rotate-btn');
+            const restartButton = document.getElementById('restart-btn');
+            const gameOverElement = document.getElementById('game-over');
+            const finalScoreElement = document.getElementById('final-score');
+            const playAgainButton = document.getElementById('play-again-btn');
+            
+            // Игровые переменные
+            let board = [];
+            let currentBlock = null;
+            let nextBlock = null;
+            let score = 0;
+            let level = 1;
+            let linesCleared = 0;
+            let isGameOver = false;
+            let draggedBlock = null;
+            
+            // Инициализация игры
+            function initGame() {
+                // Создаем пустое игровое поле
+                board = Array(BOARD_SIZE).fill().map(() => Array(BOARD_SIZE).fill(0));
+                
+                // Очищаем доску
+                boardElement.innerHTML = '';
+                
+                // Создаем ячейки для игрового поля
+                for (let row = 0; row < BOARD_SIZE; row++) {
+                    for (let col = 0; col < BOARD_SIZE; col++) {
+                        const cell = document.createElement('div');
+                        cell.classList.add('cell');
+                        cell.dataset.row = row;
+                        cell.dataset.col = col;
+                        
+                        // Добавляем обработчики для перетаскивания
+                        cell.addEventListener('dragover', handleDragOver);
+                        cell.addEventListener('drop', handleDrop);
+                        
+                        boardElement.appendChild(cell);
+                    }
+                }
+                
+                // Создаем ячейки для следующего блока
+                nextBlockElement.innerHTML = '';
+                for (let row = 0; row < 4; row++) {
+                    for (let col = 0; col < 4; col++) {
+                        const cell = document.createElement('div');
+                        cell.classList.add('block-cell');
+                        nextBlockElement.appendChild(cell);
+                    }
+                }
+                
+                // Сбрасываем счет
+                score = 0;
+                level = 1;
+                linesCleared = 0;
+                isGameOver = false;
+                
+                updateScore();
+                generateNewBlock();
+                updateNextBlockDisplay();
+                
+                // Скрываем экран завершения игры
+                gameOverElement.style.display = 'none';
+            }
+            
+            // Генерация нового блока
+            function generateNewBlock() {
+                currentBlock = nextBlock || createRandomBlock();
+                nextBlock = createRandomBlock();
+                
+                // Проверяем, можно ли разместить новый блок
+                if (!canPlaceBlock(currentBlock, 0, 0)) {
+                    endGame();
+                }
+                
+                updateNextBlockDisplay();
+            }
+            
+            // Создание случайного блока
+            function createRandomBlock() {
+                const typeIndex = Math.floor(Math.random() * BLOCK_TYPES.length);
+                const block = BLOCK_TYPES[typeIndex];
+                
+                // Создаем копию блока для вращения
+                const rotatedBlock = block.map(row => [...row]);
+                
+                // Случайное количество поворотов (0-3)
+                const rotations = Math.floor(Math.random() * 4);
+                for (let i = 0; i < rotations; i++) {
+                    rotateBlock(rotatedBlock);
+                }
+                
+                return rotatedBlock;
+            }
+            
+            // Поворот блока
+            function rotateBlock(block) {
+                const rows = block.length;
+                const cols = block[0].length;
+                
+                // Создаем новую матрицу для повернутого блока
+                const rotated = Array(cols).fill().map(() => Array(rows).fill(0));
+                
+                // Поворачиваем блок
+                for (let row = 0; row < rows; row++) {
+                    for (let col = 0; col < cols; col++) {
+                        rotated[col][rows - 1 - row] = block[row][col];
+                    }
+                }
+                
+                // Обновляем исходный блок
+                block.length = 0;
+                block.push(...rotated);
+            }
+            
+            // Обновление отображения следующего блока
+            function updateNextBlockDisplay() {
+                const cells = nextBlockElement.querySelectorAll('.block-cell');
+                
+                // Очищаем отображение
+                cells.forEach(cell => {
+                    cell.classList.remove('filled');
+                });
+                
+                // Отображаем следующий блок
+                const block = nextBlock;
+                const offsetRow = Math.floor((4 - block.length) / 2);
+                const offsetCol = Math.floor((4 - block[0].length) / 2);
+                
+                for (let row = 0; row < block.length; row++) {
+                    for (let col = 0; col < block[0].length; col++) {
+                        if (block[row][col]) {
+                            const cellIndex = (offsetRow + row) * 4 + (offsetCol + col);
+                            cells[cellIndex].classList.add('filled');
+                        }
+                    }
+                }
+            }
+            
+            // Проверка возможности размещения блока
+            function canPlaceBlock(block, startRow, startCol) {
+                for (let row = 0; row < block.length; row++) {
+                    for (let col = 0; col < block[0].length; col++) {
+                        if (block[row][col]) {
+                            const boardRow = startRow + row;
+                            const boardCol = startCol + col;
+                            
+                            // Проверяем выход за границы или пересечение с другими блоками
+                            if (
+                                boardRow < 0 || boardRow >= BOARD_SIZE ||
+                                boardCol < 0 || boardCol >= BOARD_SIZE ||
+                                board[boardRow][boardCol]
+                            ) {
+                                return false;
+                            }
+                        }
+                    }
+                }
+                return true;
+            }
+            
+            // Размещение блока на доске
+            function placeBlock(block, startRow, startCol) {
+                for (let row = 0; row < block.length; row++) {
+                    for (let col = 0; col < block[0].length; col++) {
+                        if (block[row][col]) {
+                            const boardRow = startRow + row;
+                            const boardCol = startCol + col;
+                            board[boardRow][boardCol] = 1;
+                        }
+                    }
+                }
+                
+                // Проверяем заполненные строки и столбцы
+                checkLines();
+                
+                // Генерируем новый блок
+                generateNewBlock();
+                
+                // Обновляем отображение доски
+                updateBoardDisplay();
+            }
+            
+            // Проверка заполненных строк и столбцов
+            function checkLines() {
+                let linesToClear = [];
+                
+                // Проверяем строки
+                for (let row = 0; row < BOARD_SIZE; row++) {
+                    if (board[row].every(cell => cell === 1)) {
+                        linesToClear.push({ type: 'row', index: row });
+                    }
+                }
+                
+                // Проверяем столбцы
+                for (let col = 0; col < BOARD_SIZE; col++) {
+                    let columnFull = true;
+                    for (let row = 0; row < BOARD_SIZE; row++) {
+                        if (board[row][col] !== 1) {
+                            columnFull = false;
+                            break;
+                        }
+                    }
+                    if (columnFull) {
+                        linesToClear.push({ type: 'col', index: col });
+                    }
+                }
+                
+                // Очищаем найденные строки и столбцы
+                if (linesToClear.length > 0) {
+                    clearLines(linesToClear);
+                    
+                    // Обновляем счет
+                    linesCleared += linesToClear.length;
+                    score += linesToClear.length * 100 * level;
+                    level = Math.floor(linesCleared / 10) + 1;
+                    
+                    updateScore();
+                }
+            }
+            
+            // Очистка строк и столбцов
+            function clearLines(linesToClear) {
+                // Помечаем ячейки для очистки
+                linesToClear.forEach(line => {
+                    if (line.type === 'row') {
+                        for (let col = 0; col < BOARD_SIZE; col++) {
+                            board[line.index][col] = 2; // 2 означает, что строка будет очищена
+                        }
+                    } else {
+                        for (let row = 0; row < BOARD_SIZE; row++) {
+                            board[row][line.index] = 2; // 2 означает, что столбец будет очищен
+                        }
+                    }
+                });
+                
+                // Обновляем отображение с анимацией
+                updateBoardDisplay();
+                
+                // Ждем немного для анимации, затем очищаем
+                setTimeout(() => {
+                    linesToClear.forEach(line => {
+                        if (line.type === 'row') {
+                            for (let col = 0; col < BOARD_SIZE; col++) {
+                                board[line.index][col] = 0;
+                            }
+                        } else {
+                            for (let row = 0; row < BOARD_SIZE; row++) {
+                                board[row][line.index] = 0;
+                            }
+                        }
+                    });
+                    
+                    updateBoardDisplay();
+                }, 300);
+            }
+            
+            // Обновление отображения доски
+            function updateBoardDisplay() {
+                const cells = boardElement.querySelectorAll('.cell');
+                
+                for (let row = 0; row < BOARD_SIZE; row++) {
+                    for (let col = 0; col < BOARD_SIZE; col++) {
+                        const cellIndex = row * BOARD_SIZE + col;
+                        const cell = cells[cellIndex];
+                        
+                        cell.classList.remove('filled', 'line-complete');
+                        
+                        if (board[row][col] === 1) {
+                            cell.classList.add('filled');
+                        } else if (board[row][col] === 2) {
+                            cell.classList.add('filled', 'line-complete');
+                        }
+                    }
+                }
+            }
+            
+            // Обновление счета
+            function updateScore() {
+                scoreElement.textContent = score;
+                levelElement.textContent = level;
+                linesElement.textContent = linesCleared;
+            }
+            
+            // Окончание игры
+            function endGame() {
+                isGameOver = true;
+                finalScoreElement.textContent = score;
+                gameOverElement.style.display = 'flex';
+            }
+            
+            // Обработчики событий перетаскивания
+            function handleDragOver(e) {
+                e.preventDefault();
+            }
+            
+            function handleDrop(e) {
+                e.preventDefault();
+                
+                if (isGameOver) return;
+                
+                const row = parseInt(e.target.dataset.row);
+                const col = parseInt(e.target.dataset.col);
+                
+                if (isNaN(row) || isNaN(col)) return;
+                
+                // Проверяем, можно ли разместить блок
+                if (canPlaceBlock(currentBlock, row, col)) {
+                    placeBlock(currentBlock, row, col);
+                }
+            }
+            
+            // Создание элемента для перетаскивания
+            function createDraggableBlock() {
+                const blockContainer = document.createElement('div');
+                blockContainer.classList.add('next-block');
+                blockContainer.style.width = '80px';
+                blockContainer.style.height = '80px';
+                blockContainer.style.margin = '10px';
+                blockContainer.draggable = true;
+                
+                // Создаем ячейки для блока
+                for (let row = 0; row < 4; row++) {
+                    for (let col = 0; col < 4; col++) {
+                        const cell = document.createElement('div');
+                        cell.classList.add('block-cell');
+                        blockContainer.appendChild(cell);
+                    }
+                }
+                
+                // Отображаем текущий блок
+                const block = currentBlock;
+                const offsetRow = Math.floor((4 - block.length) / 2);
+                const offsetCol = Math.floor((4 - block[0].length) / 2);
+                
+                const cells = blockContainer.querySelectorAll('.block-cell');
+                for (let row = 0; row < block.length; row++) {
+                    for (let col = 0; col < block[0].length; col++) {
+                        if (block[row][col]) {
+                            const cellIndex = (offsetRow + row) * 4 + (offsetCol + col);
+                            cells[cellIndex].classList.add('filled');
+                        }
+                    }
+                }
+                
+                // Обработчики событий перетаскивания
+                blockContainer.addEventListener('dragstart', (e) => {
+                    draggedBlock = currentBlock;
+                    e.dataTransfer.setData('text/plain', 'block');
+                });
+                
+                return blockContainer;
+            }
+            
+            // Обработчики кнопок
+            rotateButton.addEventListener('click', () => {
+                if (isGameOver) return;
+                
+                const rotatedBlock = currentBlock.map(row => [...row]);
+                rotateBlock(rotatedBlock);
+                
+                // Проверяем, можно ли разместить повернутый блок
+                if (canPlaceBlock(rotatedBlock, 0, 0)) {
+                    currentBlock = rotatedBlock;
+                }
+            });
+            
+            restartButton.addEventListener('click', initGame);
+            playAgainButton.addEventListener('click', initGame);
+            
+            // Запуск игры
+            initGame();
+            
+            // Добавляем блок для перетаскивания
+            const draggableBlock = createDraggableBlock();
+            document.querySelector('.controls').before(draggableBlock);
+        });
+    </script>
+</body>
+</html>
