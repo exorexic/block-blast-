@@ -3,500 +3,745 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>P2P Video Messenger</title>
+    <title>CineMax - Онлайн Кинотеатр</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Netflix Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
         }
-        
+
         body {
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
-            color: white;
-            min-height: 100vh;
+            background: #141414;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* Навигация */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 20px 50px;
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
             align-items: center;
-            padding: 20px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, transparent 100%);
+            z-index: 1000;
+            transition: background 0.3s;
         }
-        
-        .container {
-            width: 100%;
-            max-width: 1200px;
-            background-color: rgba(0, 0, 0, 0.7);
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            margin-top: 20px;
+
+        .navbar.scrolled {
+            background: #141414;
         }
-        
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            background: linear-gradient(to right, #fdbb2d, #b21f1f);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .subtitle {
-            font-size: 1.2rem;
-            opacity: 0.8;
-        }
-        
-        .card {
-            background-color: rgba(30, 30, 46, 0.8);
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-        
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-        }
-        
-        input {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: none;
-            background-color: rgba(255, 255, 255, 0.1);
-            color: white;
-            font-size: 1rem;
-        }
-        
-        button {
-            background: linear-gradient(to right, #1a2a6c, #b21f1f);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            margin-right: 10px;
-            margin-top: 10px;
-        }
-        
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-        
-        button:disabled {
-            background: #555;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-        
-        .code-display {
-            font-size: 2rem;
+
+        .logo {
+            font-size: 28px;
             font-weight: bold;
-            text-align: center;
-            letter-spacing: 5px;
-            background-color: rgba(0, 0, 0, 0.3);
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
+            color: #e50914;
+            text-decoration: none;
         }
-        
-        .video-container {
+
+        .nav-links {
             display: flex;
-            flex-wrap: wrap;
+            gap: 25px;
+        }
+
+        .nav-links a {
+            color: #e5e5e5;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #b3b3b3;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
             gap: 20px;
-            justify-content: center;
-            margin-top: 20px;
         }
-        
-        .video-wrapper {
-            position: relative;
-            width: 100%;
-            max-width: 500px;
-            background-color: #000;
-            border-radius: 10px;
-            overflow: hidden;
+
+        .search-box {
+            background: rgba(0,0,0,0.75);
+            border: 1px solid rgba(255,255,255,0.5);
+            border-radius: 4px;
+            padding: 8px 15px;
+            color: white;
+            font-size: 14px;
+            width: 200px;
         }
-        
-        video {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-        
-        .video-label {
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
-            background-color: rgba(0, 0, 0, 0.7);
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 0.9rem;
-        }
-        
-        .controls {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        
-        .control-btn {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
+
+        .profile {
+            width: 32px;
+            height: 32px;
+            background: #e50914;
+            border-radius: 4px;
             display: flex;
             align-items: center;
             justify-content: center;
+            cursor: pointer;
+        }
+
+        /* Герой секция */
+        .hero {
+            height: 80vh;
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), 
+                        url('https://images.unsplash.com/photo-1489599809505-fb40ebc14fa5?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            padding: 0 50px;
+            margin-bottom: 50px;
+        }
+
+        .hero-content {
+            max-width: 600px;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .hero-description {
             font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: #e5e5e5;
+            line-height: 1.4;
         }
-        
-        .mute-btn.active, .video-btn.active {
-            background: #b21f1f;
+
+        .hero-buttons {
+            display: flex;
+            gap: 15px;
         }
-        
-        .status {
-            text-align: center;
-            margin: 10px 0;
-            padding: 10px;
-            border-radius: 8px;
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
         }
-        
-        .connected {
-            background-color: rgba(46, 125, 50, 0.3);
+
+        .btn-primary {
+            background: #e50914;
+            color: white;
         }
-        
-        .disconnected {
-            background-color: rgba(211, 47, 47, 0.3);
+
+        .btn-primary:hover {
+            background: #f40612;
         }
-        
-        .hidden {
+
+        .btn-secondary {
+            background: rgba(109, 109, 110, 0.7);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(109, 109, 110, 0.4);
+        }
+
+        /* Секции с контентом */
+        .content-section {
+            padding: 0 50px;
+            margin-bottom: 50px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        /* Карусель фильмов */
+        .movie-carousel {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 10px 0;
+            scrollbar-width: none;
+        }
+
+        .movie-carousel::-webkit-scrollbar {
             display: none;
         }
-        
+
+        .movie-card {
+            min-width: 300px;
+            height: 170px;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+            transition: transform 0.3s;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .movie-card:hover {
+            transform: scale(1.05);
+            z-index: 100;
+        }
+
+        .movie-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .movie-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.9));
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .movie-card:hover .movie-info {
+            opacity: 1;
+        }
+
+        .movie-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .movie-meta {
+            font-size: 12px;
+            color: #b3b3b3;
+        }
+
+        /* Плеер */
+        .player-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .player-container {
+            width: 90%;
+            max-width: 1200px;
+            background: #141414;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .player-header {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+        }
+
+        .player-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .close-player {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .source-selector {
+            padding: 20px;
+            background: #1a1a1a;
+        }
+
+        .source-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .source-btn {
+            padding: 8px 16px;
+            background: #333;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .source-btn:hover {
+            background: #444;
+        }
+
+        .source-btn.active {
+            background: #e50914;
+        }
+
+        /* Категории */
+        .categories {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .category-btn {
+            padding: 8px 20px;
+            background: #333;
+            border: none;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .category-btn.active {
+            background: #e50914;
+        }
+
+        .category-btn:hover {
+            background: #444;
+        }
+
+        /* Адаптивность */
         @media (max-width: 768px) {
-            .video-wrapper {
-                max-width: 100%;
+            .navbar {
+                padding: 15px 20px;
             }
-            
-            h1 {
+
+            .nav-links {
+                display: none;
+            }
+
+            .hero {
+                padding: 0 20px;
+                height: 60vh;
+            }
+
+            .hero-title {
                 font-size: 2rem;
             }
+
+            .content-section {
+                padding: 0 20px;
+            }
+
+            .movie-card {
+                min-width: 200px;
+                height: 120px;
+            }
+
+            .search-box {
+                width: 150px;
+            }
+        }
+
+        /* Загрузка */
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2rem;
+            color: #b3b3b3;
+        }
+
+        /* Подвал */
+        .footer {
+            padding: 50px;
+            text-align: center;
+            color: #b3b3b3;
+            border-top: 1px solid #333;
+            margin-top: 50px;
         }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <header>
-        <h1>P2P Video Messenger</h1>
-        <p class="subtitle">Создавайте комнаты и общайтесь напрямую без серверов</p>
-    </header>
-    
-    <div class="container">
-        <div id="setup-screen" class="card">
-            <h2>Создание или присоединение к комнате</h2>
-            <div class="form-group">
-                <label for="username">Ваше имя:</label>
-                <input type="text" id="username" placeholder="Введите ваше имя" value="Пользователь">
-            </div>
-            <div class="form-group">
-                <button id="create-room-btn">Создать комнату</button>
-                <button id="join-room-btn">Присоединиться к комнате</button>
+    <!-- Навигация -->
+    <nav class="navbar">
+        <a href="#" class="logo">CINEMAX</a>
+        <div class="nav-links">
+            <a href="#" class="active">Главная</a>
+            <a href="#">Фильмы</a>
+            <a href="#">Сериалы</a>
+            <a href="#">Новинки</a>
+            <a href="#">Мой список</a>
+        </div>
+        <div class="nav-right">
+            <input type="text" class="search-box" placeholder="Поиск фильмов...">
+            <div class="profile">
+                <i class="fas fa-user"></i>
             </div>
         </div>
-        
-        <div id="room-screen" class="card hidden">
-            <h2>Комната видеосвязи</h2>
-            <div class="form-group">
-                <label>Код комнаты:</label>
-                <div id="room-code" class="code-display">XXXXXX</div>
-                <p>Поделитесь этим кодом с другими участниками</p>
+    </nav>
+
+    <!-- Герой секция -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">Аватар: Путь воды</h1>
+            <p class="hero-description">Джейк Салли и Нейтири создали семью, но им вновь угрожают люди с Земли. Чтобы защитить свой дом, им придется отправиться в разные уголки Пандоры.</p>
+            <div class="hero-buttons">
+                <button class="btn btn-primary" onclick="playMovie('Аватар: Путь воды')">
+                    <i class="fas fa-play"></i> Смотреть
+                </button>
+                <button class="btn btn-secondary">
+                    <i class="fas fa-info-circle"></i> Подробнее
+                </button>
             </div>
-            
-            <div class="form-group">
-                <label for="join-code">Или введите код для присоединения:</label>
-                <input type="text" id="join-code" placeholder="Введите код комнаты">
-                <button id="connect-btn">Подключиться</button>
+        </div>
+    </section>
+
+    <!-- Категории -->
+    <div class="content-section">
+        <div class="categories">
+            <button class="category-btn active" onclick="filterMovies('all')">Все</button>
+            <button class="category-btn" onclick="filterMovies('action')">Боевики</button>
+            <button class="category-btn" onclick="filterMovies('comedy')">Комедии</button>
+            <button class="category-btn" onclick="filterMovies('drama')">Драмы</button>
+            <button class="category-btn" onclick="filterMovies('fantasy')">Фэнтези</button>
+            <button class="category-btn" onclick="filterMovies('horror')">Ужасы</button>
+            <button class="category-btn" onclick="filterMovies('sci-fi')">Фантастика</button>
+        </div>
+    </div>
+
+    <!-- Популярные фильмы -->
+    <div class="content-section">
+        <h2 class="section-title">Популярные сейчас</h2>
+        <div class="movie-carousel" id="popularMovies">
+            <!-- Фильмы будут добавлены через JavaScript -->
+        </div>
+    </div>
+
+    <!-- Новинки -->
+    <div class="content-section">
+        <h2 class="section-title">Новинки</h2>
+        <div class="movie-carousel" id="newMovies">
+            <!-- Фильмы будут добавлены через JavaScript -->
+        </div>
+    </div>
+
+    <!-- Сериалы -->
+    <div class="content-section">
+        <h2 class="section-title">Популярные сериалы</h2>
+        <div class="movie-carousel" id="series">
+            <!-- Сериалы будут добавлены через JavaScript -->
+        </div>
+    </div>
+
+    <!-- Фантастика -->
+    <div class="content-section">
+        <h2 class="section-title">Фантастика</h2>
+        <div class="movie-carousel" id="sciFi">
+            <!-- Фильмы будут добавлены через JavaScript -->
+        </div>
+    </div>
+
+    <!-- Плеер -->
+    <div class="player-modal" id="playerModal">
+        <div class="player-container">
+            <div class="player-header">
+                <h3 class="player-title" id="playerTitle">Название фильма</h3>
+                <button class="close-player" onclick="closePlayer()">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
-            
-            <div id="status" class="status disconnected">Не подключено</div>
-            
             <div class="video-container">
-                <div class="video-wrapper">
-                    <video id="local-video" autoplay muted></video>
-                    <div class="video-label">Вы</div>
-                </div>
-                <div class="video-wrapper">
-                    <video id="remote-video" autoplay></video>
-                    <div class="video-label">Участник</div>
-                </div>
+                <iframe id="videoPlayer" src="" allowfullscreen></iframe>
             </div>
-            
-            <div class="controls">
-                <button id="mute-btn" class="control-btn mute-btn">🔇</button>
-                <button id="video-btn" class="control-btn video-btn">📹</button>
-                <button id="hangup-btn" class="control-btn" style="background: #b21f1f;">📞</button>
+            <div class="source-selector">
+                <h4>Выберите источник:</h4>
+                <div class="source-buttons" id="sourceButtons">
+                    <!-- Кнопки источников будут добавлены через JavaScript -->
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Подвал -->
+    <footer class="footer">
+        <p>&copy; 2024 CineMax. Все права защищены.</p>
+        <p>Это демонстрационный проект. Все фильмы принадлежат их правообладателям.</p>
+    </footer>
+
     <script>
-        // Элементы DOM
-        const setupScreen = document.getElementById('setup-screen');
-        const roomScreen = document.getElementById('room-screen');
-        const createRoomBtn = document.getElementById('create-room-btn');
-        const joinRoomBtn = document.getElementById('join-room-btn');
-        const roomCodeDisplay = document.getElementById('room-code');
-        const joinCodeInput = document.getElementById('join-code');
-        const connectBtn = document.getElementById('connect-btn');
-        const localVideo = document.getElementById('local-video');
-        const remoteVideo = document.getElementById('remote-video');
-        const muteBtn = document.getElementById('mute-btn');
-        const videoBtn = document.getElementById('video-btn');
-        const hangupBtn = document.getElementById('hangup-btn');
-        const statusDiv = document.getElementById('status');
-        const usernameInput = document.getElementById('username');
-
-        // Переменные WebRTC
-        let localStream = null;
-        let remoteStream = null;
-        let peerConnection = null;
-        let roomCode = null;
-        let isCaller = false;
-        let isMuted = false;
-        let isVideoOff = false;
-
-        // Конфигурация STUN серверов для WebRTC
-        const configuration = {
-            iceServers: [
-                { urls: 'stun:stun.l.google.com:19302' },
-                { urls: 'stun:stun1.l.google.com:19302' }
-            ]
-        };
-
-        // Генерация случайного кода комнаты
-        function generateRoomCode() {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let result = '';
-            for (let i = 0; i < 6; i++) {
-                result += chars.charAt(Math.floor(Math.random() * chars.length));
+        // База данных фильмов
+        const movies = [
+            {
+                id: 1,
+                title: "Аватар: Путь воды",
+                description: "Джейк Салли и Нейтири создали семью, но им вновь угрожают люди с Земли.",
+                image: "https://images.unsplash.com/photo-1616530940355-351fabd9526b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                category: ["sci-fi", "action"],
+                year: "2022",
+                rating: "8.1",
+                sources: {
+                    "HDRezka": "https://hdrezka.sh/films/fiction/11690-avatar-put-vody-2022.html",
+                    "Showy": "https://showy.su/film/avatar-2",
+                    "Filmix": "https://filmix.ac/films/fiction/11690-avatar-put-vody-2022.html"
+                }
+            },
+            {
+                id: 2,
+                title: "Оппенгеймер",
+                description: "История создания атомной бомбы и жизнь Роберта Оппенгеймера.",
+                image: "https://images.unsplash.com/photo-1534447677768-be436bb09401?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                category: ["drama", "history"],
+                year: "2023",
+                rating: "8.8",
+                sources: {
+                    "HDRezka": "https://hdrezka.sh/films/drama/14567-oppengeymer-2023.html",
+                    "Showy": "https://showy.su/film/oppenheimer",
+                    "Filmix": "https://filmix.ac/films/drama/14567-oppengeymer-2023.html"
+                }
+            },
+            {
+                id: 3,
+                title: "Джон Уик 4",
+                description: "Джон Уик продолжает свой путь мести против Высшего совета.",
+                image: "https://images.unsplash.com/photo-1489599809505-fb40ebc14fa5?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                category: ["action"],
+                year: "2023",
+                rating: "8.0",
+                sources: {
+                    "HDRezka": "https://hdrezka.sh/films/action/14211-dzhon-uik-4-2023.html",
+                    "Showy": "https://showy.su/film/john-wick-4",
+                    "Filmix": "https://filmix.ac/films/action/14211-dzhon-uik-4-2023.html"
+                }
+            },
+            {
+                id: 4,
+                title: "Барби",
+                description: "Кукла Барби отправляется в реальный мир в поисках счастья.",
+                image: "https://images.unsplash.com/photo-1534447677768-be436bb09401?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                category: ["comedy", "fantasy"],
+                year: "2023",
+                rating: "7.5",
+                sources: {
+                    "HDRezka": "https://hdrezka.sh/films/comedy/14456-barbi-2023.html",
+                    "Showy": "https://showy.su/film/barbie",
+                    "Filmix": "https://filmix.ac/films/comedy/14456-barbi-2023.html"
+                }
+            },
+            {
+                id: 5,
+                title: "Человек-паук: Паутина вселенных",
+                description: "Майлз Моралес путешествует по мультивселенной и встречает других пауков.",
+                image: "https://images.unsplash.com/photo-1635805737707-575885ab0820?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                category: ["sci-fi", "action"],
+                year: "2023",
+                rating: "9.0",
+                sources: {
+                    "HDRezka": "https://hdrezka.sh/films/animation/14345-chelovek-pauk-pautina-vselennyh-2023.html",
+                    "Showy": "https://showy.su/film/spider-man-across-the-spider-verse",
+                    "Filmix": "https://filmix.ac/films/animation/14345-chelovek-pauk-pautina-vselennyh-2023.html"
+                }
+            },
+            {
+                id: 6,
+                title: "Миссия невыполнима 7",
+                description: "Итан Хант и его команда сталкиваются с самой опасной миссией.",
+                image: "https://images.unsplash.com/photo-1594909122845-11baa439b7bf?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                category: ["action"],
+                year: "2023",
+                rating: "7.9",
+                sources: {
+                    "HDRezka": "https://hdrezka.sh/films/action/14423-missiya-nevypolnima-7-2023.html",
+                    "Showy": "https://showy.su/film/mission-impossible-7",
+                    "Filmix": "https://filmix.ac/films/action/14423-missiya-nevypolnima-7-2023.html"
+                }
+            },
+            {
+                id: 7,
+                title: "Игра в кальмара",
+                description: "Бедняки участвуют в смертельных играх ради большого денежного приза.",
+                image: "https://images.unsplash.com/photo-1535016120720-40c646be5580?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                category: ["drama", "thriller"],
+                year: "2021",
+                rating: "8.3",
+                type: "series",
+                sources: {
+                    "HDRezka": "https://hdrezka.sh/series/thriller/39520-igra-v-kalmara-2021.html",
+                    "Showy": "https://showy.su/series/squid-game",
+                    "Filmix": "https://filmix.ac/series/thriller/39520-igra-v-kalmara-2021.html"
+                }
+            },
+            {
+                id: 8,
+                title: "Ведьмак",
+                description: "Геральт из Ривии, мутант и охотник на чудовищ, скитается по Континенту.",
+                image: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                category: ["fantasy", "action"],
+                year: "2019",
+                rating: "8.2",
+                type: "series",
+                sources: {
+                    "HDRezka": "https://hdrezka.sh/series/fantasy/37768-vedmak-2019.html",
+                    "Showy": "https://showy.su/series/the-witcher",
+                    "Filmix": "https://filmix.ac/series/fantasy/37768-vedmak-2019.html"
+                }
             }
-            return result;
+        ];
+
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            renderMovies();
+            setupNavbar();
+            setupSearch();
+        });
+
+        // Рендер фильмов
+        function renderMovies() {
+            const popularMovies = movies.slice(0, 6);
+            const newMovies = movies.slice(2, 8);
+            const series = movies.filter(movie => movie.type === 'series');
+            const sciFi = movies.filter(movie => movie.category.includes('sci-fi'));
+
+            renderCarousel('popularMovies', popularMovies);
+            renderCarousel('newMovies', newMovies);
+            renderCarousel('series', series);
+            renderCarousel('sciFi', sciFi);
         }
 
-        // Инициализация локального медиапотока
-        async function initLocalStream() {
-            try {
-                localStream = await navigator.mediaDevices.getUserMedia({ 
-                    video: true, 
-                    audio: true 
-                });
-                localVideo.srcObject = localStream;
-            } catch (error) {
-                console.error('Ошибка доступа к медиаустройствам:', error);
-                alert('Не удалось получить доступ к камере или микрофону. Пожалуйста, проверьте разрешения.');
-            }
-        }
+        // Рендер карусели
+        function renderCarousel(containerId, moviesList) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
 
-        // Создание комнаты
-        createRoomBtn.addEventListener('click', async () => {
-            await initLocalStream();
-            roomCode = generateRoomCode();
-            roomCodeDisplay.textContent = roomCode;
-            setupScreen.classList.add('hidden');
-            roomScreen.classList.remove('hidden');
-            isCaller = true;
-            createPeerConnection();
-        });
-
-        // Присоединение к комнате
-        joinRoomBtn.addEventListener('click', async () => {
-            await initLocalStream();
-            setupScreen.classList.add('hidden');
-            roomScreen.classList.remove('hidden');
-            isCaller = false;
-        });
-
-        // Подключение к комнате по коду
-        connectBtn.addEventListener('click', () => {
-            if (joinCodeInput.value.trim() === '') {
-                alert('Пожалуйста, введите код комнаты');
-                return;
-            }
-            
-            roomCode = joinCodeInput.value.trim().toUpperCase();
-            roomCodeDisplay.textContent = roomCode;
-            createPeerConnection();
-            
-            // В реальном приложении здесь будет сигналинг для соединения с другим участником
-            // Для демонстрации мы просто имитируем соединение
-            setTimeout(() => {
-                statusDiv.textContent = 'Подключено к ' + roomCode;
-                statusDiv.className = 'status connected';
-            }, 2000);
-        });
-
-        // Создание peer connection
-        function createPeerConnection() {
-            peerConnection = new RTCPeerConnection(configuration);
-            
-            // Добавление локального потока в соединение
-            localStream.getTracks().forEach(track => {
-                peerConnection.addTrack(track, localStream);
+            moviesList.forEach(movie => {
+                const movieCard = document.createElement('div');
+                movieCard.className = 'movie-card';
+                movieCard.innerHTML = `
+                    <img src="${movie.image}" alt="${movie.title}">
+                    <div class="movie-info">
+                        <div class="movie-title">${movie.title}</div>
+                        <div class="movie-meta">${movie.year} • ★ ${movie.rating}</div>
+                    </div>
+                `;
+                movieCard.addEventListener('click', () => playMovie(movie.title, movie.sources));
+                container.appendChild(movieCard);
             });
-            
-            // Получение удаленного потока
-            peerConnection.ontrack = (event) => {
-                remoteStream = event.streams[0];
-                remoteVideo.srcObject = remoteStream;
-            };
-            
-            // Обработка ICE кандидатов
-            peerConnection.onicecandidate = (event) => {
-                if (event.candidate) {
-                    // В реальном приложении здесь будет отправка кандидата через сигналинг
-                    console.log('Новый ICE кандидат:', event.candidate);
-                }
-            };
-            
-            // Изменение состояния соединения
-            peerConnection.onconnectionstatechange = () => {
-                switch(peerConnection.connectionState) {
-                    case 'connected':
-                        statusDiv.textContent = 'Подключено';
-                        statusDiv.className = 'status connected';
-                        break;
-                    case 'disconnected':
-                    case 'failed':
-                        statusDiv.textContent = 'Соединение прервано';
-                        statusDiv.className = 'status disconnected';
-                        break;
-                    case 'connecting':
-                        statusDiv.textContent = 'Подключение...';
-                        statusDiv.className = 'status';
-                        break;
-                }
-            };
-            
-            // Если мы создатель комнаты, создаем предложение
-            if (isCaller) {
-                createOffer();
-            }
         }
 
-        // Создание предложения для соединения
-        async function createOffer() {
-            try {
-                const offer = await peerConnection.createOffer();
-                await peerConnection.setLocalDescription(offer);
-                
-                // В реальном приложении здесь будет отправка предложения через сигналинг
-                console.log('Создано предложение:', offer);
-                
-                // Имитация получения ответа (в реальном приложении это придет от другого участника)
-                setTimeout(() => {
-                    if (peerConnection) {
-                        simulateAnswer();
-                    }
-                }, 1000);
-            } catch (error) {
-                console.error('Ошибка создания предложения:', error);
-            }
+        // Фильтрация по категориям
+        function filterMovies(category) {
+            const buttons = document.querySelectorAll('.category-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // В реальном приложении здесь была бы фильтрация
+            console.log(`Фильтрация по категории: ${category}`);
         }
 
-        // Имитация ответа от другого участника (для демонстрации)
-        async function simulateAnswer() {
-            try {
-                // В реальном приложении здесь будет получение ответа через сигналинг
-                const answer = {
-                    type: 'answer',
-                    sdp: 'v=0\r\no=- 123456 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=group:BUNDLE 0\r\na=msid-semantic: WMS\r\nm=video 9 UDP/TLS/RTP/SAVPF 96 97 98 99 100 101 102 121 127 120 125 107 108 109 124 119 123 118 114 115 116\r\nc=IN IP4 0.0.0.0\r\na=rtcp:9 IN IP4 0.0.0.0\r\na=ice-ufrag:xyz\r\na=ice-pwd:abcd\r\na=ice-options:trickle\r\na=fingerprint:sha-256 00:11:22:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF\r\na=setup:active\r\na=mid:0\r\na=extmap:1 urn:ietf:params:rtp-hdrext:toffset\r\na=extmap:2 http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time\r\na=extmap:3 urn:3gpp:video-orientation\r\na=extmap:4 http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01\r\na=extmap:5 http://www.webrtc.org/experiments/rtp-hdrext/playout-delay\r\na=extmap:6 http://www.webrtc.org/experiments/rtp-hdrext/video-content-type\r\na=extmap:7 http://www.webrtc.org/experiments/rtp-hdrext/video-timing\r\na=extmap:8 http://www.webrtc.org/experiments/rtp-hdrext/color-space\r\na=recvonly\r\na=rtcp-mux\r\na=rtcp-rsize\r\na=rtpmap:96 VP8/90000\r\na=rtcp-fb:96 goog-remb\r\na=rtcp-fb:96 transport-cc\r\na=rtcp-fb:96 ccm fir\r\na=rtcp-fb:96 nack\r\na=rtcp-fb:96 nack pli\r\na=rtpmap:97 rtx/90000\r\na=fmtp:97 apt=96\r\na=rtpmap:98 VP9/90000\r\na=rtcp-fb:98 goog-remb\r\na=rtcp-fb:98 transport-cc\r\na=rtcp-fb:98 ccm fir\r\na=rtcp-fb:98 nack\r\na=rtcp-fb:98 nack pli\r\na=fmtp:98 profile-id=0\r\na=rtpmap:99 VP9/90000\r\na=rtcp-fb:99 goog-remb\r\na=rtcp-fb:99 transport-cc\r\na=rtcp-fb:99 ccm fir\r\na=rtcp-fb:99 nack\r\na=rtcp-fb:99 nack pli\r\na=fmtp:99 profile-id=2\r\na=rtpmap:100 H264/90000\r\na=rtcp-fb:100 goog-remb\r\na=rtcp-fb:100 transport-cc\r\na=rtcp-fb:100 ccm fir\r\na=rtcp-fb:100 nack\r\na=rtcp-fb:100 nack pli\r\na=fmtp:100 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42001f\r\na=rtpmap:101 H264/90000\r\na=rtcp-fb:101 goog-remb\r\na=rtcp-fb:101 transport-cc\r\na=rtcp-fb:101 ccm fir\r\na=rtcp-fb:101 nack\r\na=rtcp-fb:101 nack pli\r\na=fmtp:101 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f\r\na=rtpmap:102 H264/90000\r\na=rtcp-fb:102 goog-remb\r\na=rtcp-fb:102 transport-cc\r\na=rtcp-fb:102 ccm fir\r\na=rtcp-fb:102 nack\r\na=rtcp-fb:102 nack pli\r\na=fmtp:102 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=4d001f\r\na=rtpmap:121 H264/90000\r\na=rtcp-fb:121 goog-remb\r\na=rtcp-fb:121 transport-cc\r\na=rtcp-fb:121 ccm fir\r\na=rtcp-fb:121 nack\r\na=rtcp-fb:121 nack pli\r\na=fmtp:121 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=64001f\r\na=rtpmap:127 H264/90000\r\na=rtcp-fb:127 goog-remb\r\na=rtcp-fb:127 transport-cc\r\na=rtcp-fb:127 ccm fir\r\na=rtcp-fb:127 nack\r\na=rtcp-fb:127 nack pli\r\na=fmtp:127 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42001f\r\na=rtpmap:120 red/90000\r\na=rtpmap:125 ulpfec/90000\r\na=rtpmap:107 flexfec/90000\r\na=rtcp-fb:107 goog-remb\r\na=rtcp-fb:107 transport-cc\r\na=rtpmap:108 flexfec/90000\r\na=rtcp-fb:108 goog-remb\r\na=rtcp-fb:108 transport-cc\r\na=rtpmap:109 flexfec/90000\r\na=rtcp-fb:109 goog-remb\r\na=rtcp-fb:109 transport-cc\r\na=rtpmap:124 flexfec/90000\r\na=rtcp-fb:124 goog-remb\r\na=rtcp-fb:124 transport-cc\r\na=rtpmap:119 flexfec/90000\r\na=rtcp-fb:119 goog-remb\r\na=rtcp-fb:119 transport-cc\r\na=rtpmap:123 flexfec/90000\r\na=rtcp-fb:123 goog-remb\r\na=rtcp-fb:123 transport-cc\r\na=rtpmap:118 flexfec/90000\r\na=rtcp-fb:118 goog-remb\r\na=rtcp-fb:118 transport-cc\r\na=rtpmap:114 flexfec/90000\r\na=rtcp-fb:114 goog-remb\r\na=rtcp-fb:114 transport-cc\r\na=rtpmap:115 flexfec/90000\r\na=rtcp-fb:115 goog-remb\r\na=rtcp-fb:115 transport-cc\r\na=rtpmap:116 flexfec/90000\r\na=rtcp-fb:116 goog-remb\r\na=rtcp-fb:116 transport-cc\r\n'
-                };
-                
-                await peerConnection.setRemoteDescription(answer);
-                console.log('Установлено удаленное описание (ответ)');
-            } catch (error) {
-                console.error('Ошибка установки удаленного описания:', error);
-            }
-        }
+        // Воспроизведение фильма
+        function playMovie(title, sources = null) {
+            const modal = document.getElementById('playerModal');
+            const playerTitle = document.getElementById('playerTitle');
+            const sourceButtons = document.getElementById('sourceButtons');
 
-        // Управление микрофоном
-        muteBtn.addEventListener('click', () => {
-            if (localStream) {
-                const audioTracks = localStream.getAudioTracks();
-                if (audioTracks.length > 0) {
-                    isMuted = !isMuted;
-                    audioTracks[0].enabled = !isMuted;
-                    muteBtn.textContent = isMuted ? '🔊' : '🔇';
-                    muteBtn.classList.toggle('active', isMuted);
+            playerTitle.textContent = title;
+            sourceButtons.innerHTML = '';
+
+            if (sources) {
+                Object.entries(sources).forEach(([sourceName, sourceUrl]) => {
+                    const button = document.createElement('button');
+                    button.className = 'source-btn';
+                    button.textContent = sourceName;
+                    button.addEventListener('click', () => {
+                        document.querySelectorAll('.source-btn').forEach(btn => btn.classList.remove('active'));
+                        button.classList.add('active');
+                        // В реальном приложении здесь был бы iframe с видео
+                        document.getElementById('videoPlayer').src = sourceUrl;
+                    });
+                    sourceButtons.appendChild(button);
+                });
+
+                // Автоматически выбираем первый источник
+                if (sourceButtons.firstChild) {
+                    sourceButtons.firstChild.click();
                 }
+            }
+
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Закрытие плеера
+        function closePlayer() {
+            const modal = document.getElementById('playerModal');
+            const videoPlayer = document.getElementById('videoPlayer');
+            
+            modal.style.display = 'none';
+            videoPlayer.src = '';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Настройка навигации
+        function setupNavbar() {
+            const navbar = document.querySelector('.navbar');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 100) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+            });
+        }
+
+        // Поиск
+        function setupSearch() {
+            const searchBox = document.querySelector('.search-box');
+            searchBox.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                // В реальном приложении здесь был бы поиск по базе данных
+                console.log(`Поиск: ${searchTerm}`);
+            });
+        }
+
+        // Закрытие плеера по ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closePlayer();
             }
         });
 
-        // Управление видео
-        videoBtn.addEventListener('click', () => {
-            if (localStream) {
-                const videoTracks = localStream.getVideoTracks();
-                if (videoTracks.length > 0) {
-                    isVideoOff = !isVideoOff;
-                    videoTracks[0].enabled = !isVideoOff;
-                    videoBtn.textContent = isVideoOff ? '📷' : '📹';
-                    videoBtn.classList.toggle('active', isVideoOff);
-                }
+        // Закрытие плеера по клику вне области
+        document.getElementById('playerModal').addEventListener('click', (e) => {
+            if (e.target.id === 'playerModal') {
+                closePlayer();
             }
         });
-
-        // Завершение вызова
-        hangupBtn.addEventListener('click', () => {
-            if (peerConnection) {
-                peerConnection.close();
-                peerConnection = null;
-            }
-            
-            if (localStream) {
-                localStream.getTracks().forEach(track => track.stop());
-                localStream = null;
-            }
-            
-            if (remoteStream) {
-                remoteStream.getTracks().forEach(track => track.stop());
-                remoteStream = null;
-            }
-            
-            localVideo.srcObject = null;
-            remoteVideo.srcObject = null;
-            
-            roomScreen.classList.add('hidden');
-            setupScreen.classList.remove('hidden');
-            statusDiv.textContent = 'Не подключено';
-            statusDiv.className = 'status disconnected';
-            
-            // Сброс состояний кнопок
-            muteBtn.textContent = '🔇';
-            muteBtn.classList.remove('active');
-            videoBtn.textContent = '📹';
-            videoBtn.classList.remove('active');
-            isMuted = false;
-            isVideoOff = false;
-        });
-
-        // Информация о приложении
-        console.log('P2P Video Messenger готов к работе!');
-        console.log('Это демонстрационная версия с имитацией P2P соединения.');
-        console.log('В реальном приложении потребуется реализовать сигналинг сервер для обмена SDP и ICE кандидатами.');
     </script>
 </body>
 </html>
